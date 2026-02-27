@@ -15,9 +15,9 @@ CWD=$(echo "$INPUT" | jq -r '.cwd // empty')
 LOG_FILE="$CWD/.claude/agile-coordinator.log"
 if [ -f "$LOG_FILE" ]; then
   echo ""
-  echo "## Coordinator Log Contents"
+  echo "## Coordinator Log (last 300 lines — read full file if you need older history)"
   echo ""
-  cat "$LOG_FILE"
+  tail -300 "$LOG_FILE"
 fi
 
 exit 0
