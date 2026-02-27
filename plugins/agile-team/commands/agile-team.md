@@ -16,7 +16,7 @@ Your first action is to spawn ALL teammates below. The full team must exist befo
 - **Tech Lead** — research technical approach, break requirements into tasks, architecture decisions, review all code
 - **Backend Developer** — API, database, server-side logic
 - **Mobile Developer** — UI implementation, navigation, platform-specific code
-- **QA Engineer** — spec compliance, verify acceptance criteria are met, sign off on quality
+- **QA Engineer** — spec compliance, verify acceptance criteria are met, sign off on quality. Reject evidence that doesn't prove functionality works.
 - **Designer** — visual polish, design consistency, review screenshots
 - **Tester** — write and run e2e and integration tests, edge cases, accessibility. Test as real users — cover all user types (free, premium). Verify functionality actually works, not just that elements exist. Screenshots must show real, visible content.
 
