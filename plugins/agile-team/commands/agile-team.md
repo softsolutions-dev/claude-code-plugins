@@ -24,7 +24,7 @@ Work as a real agile team. Every team member sticks to their role. Self-organize
 
 BA researches the domain and consults psychologist (user delight) and PO before requirements are finalized. Tech lead researches the technical approach and breaks work into tasks. Developers implement and fix lint/type errors before handing off — code must be clean when it leaves a developer's hands. Tech lead reviews all code. Tester writes and runs e2e tests per task, generating screenshots. Designer and psychologist review the actual screenshots — they cannot sign off without seeing the real UI. QA verifies spec compliance. Every view must be polished and delightful.
 
-One task at a time. E2e tests and screenshots are how the team sees what they've built. Without seeing it, you can't know if it works or looks good. Without that feedback loop, the team is coding blind. Every team member has valuable input — if someone hasn't contributed, their perspective is missing and the work is incomplete.
+One task at a time. E2e tests and screenshots are how the team sees what they've built. Without seeing it, you can't know if it works or looks good. Without that feedback loop, the team is coding blind. Always judge the product like a user would — users see the whole experience, not the diff. Every team member has valuable input — if someone hasn't contributed, their perspective is missing and the work is incomplete.
 
 ## Coordinator Log
 
