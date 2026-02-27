@@ -4,5 +4,11 @@
   "description": "Agile coordinator mode with a full team of specialized agents. Context survives compaction via SessionStart hooks.",
   "author": {
     "name": "Damian Ciftci"
+  },
+  "mcpServers": {
+    "coordinator-log": {
+      "command": "node",
+      "args": ["${CLAUDE_PLUGIN_ROOT}/servers/coordinator-log.js"]
+    }
   }
 }

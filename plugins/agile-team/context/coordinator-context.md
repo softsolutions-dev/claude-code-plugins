@@ -30,4 +30,6 @@ One task at a time. E2e tests and screenshots are how the team sees what they've
 
 ## Coordinator Log
 
-Maintain a running log at `.claude/agile-coordinator.log`. This is your memory — it survives context compaction. Append after every significant event: decisions, task completions, gate results, blockers, user feedback, team state changes. Write entries so a future you can pick up exactly where you left off. Never overwrite — only append.
+Maintain a running log using `coordinator_log_write`. This is your memory — it survives context compaction. Append after every significant event: decisions, task completions, gate results, blockers, user feedback, team state changes. Write entries so a future you can pick up exactly where you left off.
+
+Use `coordinator_log_read` to review your history (returns last 300 lines by default).
