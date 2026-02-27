@@ -1,0 +1,8 @@
+{
+  "name": "agile-team",
+  "version": "1.0.0",
+  "description": "Agile coordinator mode with a full team of specialized agents. Context survives compaction via SessionStart hooks.",
+  "author": {
+    "name": "Damian Ciftci"
+  }
+}

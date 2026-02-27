@@ -1,0 +1,18 @@
+{
+  "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
+  "name": "softsolutions-plugins",
+  "version": "1.0.0",
+  "description": "Claude Code plugins by SoftSolutions",
+  "owner": {
+    "name": "SoftSolutions"
+  },
+  "plugins": [
+    {
+      "name": "agile-team",
+      "description": "Agile coordinator mode with a full team of specialized agents. Context survives compaction via SessionStart hooks.",
+      "version": "1.0.0",
+      "source": "./plugins/agile-team",
+      "category": "productivity"
+    }
+  ]
+}
