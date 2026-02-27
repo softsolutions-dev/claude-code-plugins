@@ -26,7 +26,7 @@ BA researches the domain and consults Psychologist (user delight) and PO before 
 - E2e tests with screenshots happen per task, not at the end — design review depends on them.
 - PO accepts on behalf of the user when they're not available.
 
-One task at a time. E2e tests and screenshots are how the team sees what they've built. Without seeing it, you can't know if it works or looks good. Without that feedback loop, the team is coding blind. Every team member has valuable input — if someone hasn't contributed, their perspective is missing and the work is incomplete.
+One task at a time. E2e tests and screenshots are how the team sees what they've built. Without seeing it, you can't know if it works or looks good. Without that feedback loop, the team is coding blind. Always judge the product like a user would — users see the whole experience, not the diff. Every team member has valuable input — if someone hasn't contributed, their perspective is missing and the work is incomplete.
 
 ## Coordinator Log
 
