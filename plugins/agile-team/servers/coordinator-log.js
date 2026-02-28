@@ -10,6 +10,24 @@ const readline = require('readline');
 const PLUGIN_ROOT = process.env.CLAUDE_PLUGIN_ROOT || path.resolve(__dirname, '..');
 const SESSIONS_DIR = path.join(PLUGIN_ROOT, '.sessions');
 
+function goalsPath(sessionId) {
+  return path.join(SESSIONS_DIR, `${sessionId}.goals.json`);
+}
+
+function readGoals(sessionId) {
+  const p = goalsPath(sessionId);
+  if (!fs.existsSync(p)) return { goals: [] };
+  return JSON.parse(fs.readFileSync(p, 'utf-8'));
+}
+
+function writeGoals(sessionId, data) {
+  fs.mkdirSync(SESSIONS_DIR, { recursive: true });
+  const target = goalsPath(sessionId);
+  const tmp = target + '.tmp';
+  fs.writeFileSync(tmp, JSON.stringify(data, null, 2));
+  fs.renameSync(tmp, target);
+}
+
 // --- Send JSON-RPC message (newline-delimited) ---
 
 function send(obj) {
@@ -47,6 +65,27 @@ const TOOLS = [
         lines: { type: 'number', description: 'Number of lines to return from the end (default 300)' }
       }
     }
+  },
+  {
+    name: 'goal_add',
+    description: 'Add a goal to the queue. Goals are worked sequentially — one at a time.',
+    inputSchema: {
+      type: 'object',
+      properties: {
+        description: { type: 'string', description: 'Short description of the goal' }
+      },
+      required: ['description']
+    }
+  },
+  {
+    name: 'goal_current',
+    description: 'Get the current active goal. Returns goal description and position (e.g., "Goal 2 of 4").',
+    inputSchema: { type: 'object', properties: {} }
+  },
+  {
+    name: 'goal_complete',
+    description: 'Mark the current goal as complete and advance to the next one.',
+    inputSchema: { type: 'object', properties: {} }
   }
 ];
 
@@ -83,6 +122,57 @@ function handleToolCall(id, name, args) {
     } catch (e) {
       respond(id, { content: [{ type: 'text', text: `Error: ${e.message}` }], isError: true });
     }
+  } else if (name === 'goal_add') {
+    if (!args.description) {
+      return respond(id, { content: [{ type: 'text', text: 'Error: description is required' }], isError: true });
+    }
+    try {
+      const data = readGoals(sessionId);
+      const goalId = data.goals.length + 1;
+      const hasActive = data.goals.some(g => g.status === 'active');
+      data.goals.push({ id: goalId, description: args.description, status: hasActive ? 'pending' : 'active' });
+      writeGoals(sessionId, data);
+      respond(id, { content: [{ type: 'text', text: `Added goal ${goalId}: ${args.description}` }] });
+    } catch (e) {
+      respond(id, { content: [{ type: 'text', text: `Error: ${e.message}` }], isError: true });
+    }
+
+  } else if (name === 'goal_current') {
+    try {
+      const data = readGoals(sessionId);
+      const total = data.goals.length;
+      if (total === 0) {
+        return respond(id, { content: [{ type: 'text', text: 'No goals yet. Use goal_add to create goals.' }] });
+      }
+      const active = data.goals.find(g => g.status === 'active');
+      if (!active) {
+        return respond(id, { content: [{ type: 'text', text: 'All goals complete.' }] });
+      }
+      respond(id, { content: [{ type: 'text', text: `Goal ${active.id} of ${total}: ${active.description}` }] });
+    } catch (e) {
+      respond(id, { content: [{ type: 'text', text: `Error: ${e.message}` }], isError: true });
+    }
+
+  } else if (name === 'goal_complete') {
+    try {
+      const data = readGoals(sessionId);
+      const active = data.goals.find(g => g.status === 'active');
+      if (!active) {
+        return respond(id, { content: [{ type: 'text', text: 'No active goal to complete.' }] });
+      }
+      active.status = 'completed';
+      const next = data.goals.find(g => g.status === 'pending');
+      if (next) next.status = 'active';
+      writeGoals(sessionId, data);
+      const total = data.goals.length;
+      const msg = next
+        ? `Goal ${active.id} complete. Now active — Goal ${next.id} of ${total}: ${next.description}`
+        : `All ${total} goals complete.`;
+      respond(id, { content: [{ type: 'text', text: msg }] });
+    } catch (e) {
+      respond(id, { content: [{ type: 'text', text: `Error: ${e.message}` }], isError: true });
+    }
+
   } else {
     respondError(id, -32601, `Unknown tool: ${name}`);
   }
