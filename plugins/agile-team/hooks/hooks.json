@@ -13,7 +13,7 @@
     ],
     "PreToolUse": [
       {
-        "matcher": ".*coordinator_log.*",
+        "matcher": ".*coordinator_log.*|.*goal_.*",
         "hooks": [
           {
             "type": "command",
