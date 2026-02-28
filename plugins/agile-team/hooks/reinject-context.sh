@@ -12,6 +12,23 @@ fi
 
 cat "${CLAUDE_PLUGIN_ROOT}/context/coordinator-context.md"
 
+# Inject active goal if goals exist
+GOALS_FILE="${CLAUDE_PLUGIN_ROOT}/.sessions/${SESSION_ID}.goals.json"
+if [ -f "$GOALS_FILE" ]; then
+  GOAL_ID=$(jq -r '.goals[] | select(.status == "active") | .id' "$GOALS_FILE" 2>/dev/null)
+  if [ -n "$GOAL_ID" ]; then
+    TOTAL=$(jq '.goals | length' "$GOALS_FILE")
+    DESC=$(jq -r '.goals[] | select(.status == "active") | .description' "$GOALS_FILE")
+    echo ""
+    echo "## Active Goal"
+    echo "Goal ${GOAL_ID} of ${TOTAL}: ${DESC}"
+  else
+    echo ""
+    echo "## Goals"
+    echo "All goals complete."
+  fi
+fi
+
 echo ""
 echo "## Coordinator Log (last 300 lines — read full file if you need older history)"
 echo ""
