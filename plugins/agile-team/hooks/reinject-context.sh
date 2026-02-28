@@ -30,8 +30,8 @@ if [ -f "$GOALS_FILE" ]; then
 fi
 
 echo ""
-echo "## Coordinator Log (last 300 lines — read full file if you need older history)"
+echo "## Coordinator Log (last 30 lines — use coordinator_log_read for full history)"
 echo ""
-tail -300 "$SESSION_LOG"
+tail -30 "$SESSION_LOG"
 
 exit 0

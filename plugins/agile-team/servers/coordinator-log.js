@@ -58,7 +58,7 @@ const TOOLS = [
   },
   {
     name: 'coordinator_log_read',
-    description: 'Read the coordinator log. Returns the last N lines (default 300).',
+    description: 'Read the coordinator log. Returns the last N lines (default 50).',
     inputSchema: {
       type: 'object',
       properties: {
@@ -117,7 +117,7 @@ function handleToolCall(id, name, args) {
         return respond(id, { content: [{ type: 'text', text: '(log is empty — no entries yet)' }] });
       }
       const lines = fs.readFileSync(logPath, 'utf-8').split('\n').filter(l => l);
-      const tail = lines.slice(-(args.lines || 300)).join('\n');
+      const tail = lines.slice(-(args.lines || 50)).join('\n');
       respond(id, { content: [{ type: 'text', text: tail || '(log is empty — no entries yet)' }] });
     } catch (e) {
       respond(id, { content: [{ type: 'text', text: `Error: ${e.message}` }], isError: true });
