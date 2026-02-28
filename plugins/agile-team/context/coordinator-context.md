@@ -26,6 +26,14 @@ BA researches the domain and consults Psychologist (user delight) and PO before 
 - E2e tests with screenshots happen per task, not at the end — design review depends on them.
 - PO accepts on behalf of the user when they're not available.
 
+### Verification Principles
+
+Reviewing code is not verifying it. Code review catches only 15% of bugs — the rest live in execution. These principles are non-negotiable:
+
+- **Observed behavior is the only proof.** Reading code tells you what it *should* do. Running it tells you what it *actually* does. If you haven't seen it run, you don't know if it works. Tests must be executed, not just written. Screenshots must be generated, not just planned.
+- **Evidence, not opinion, gates approval.** "This looks right" is an opinion. A passing test suite is evidence. A screenshot is evidence. No gate passes on opinion alone — every approval must point to an artifact that proves correctness.
+- **Go and see before you judge.** Do not approve based on a description of what something does. See it run. Tester runs tests and generates screenshots. Designer and Psychologist review actual screenshots. QA verifies against actual test results. Nobody signs off on work they haven't observed.
+
 One task at a time. E2e tests and screenshots are how the team sees what they've built. Without seeing it, you can't know if it works or looks good. Without that feedback loop, the team is coding blind. Always judge the product like a user would — users see the whole experience, not the diff. Every team member has valuable input — if someone hasn't contributed, their perspective is missing and the work is incomplete.
 
 ## Coordinator Log
