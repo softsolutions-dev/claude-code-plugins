@@ -21,6 +21,16 @@
             "timeout": 5
           }
         ]
+      },
+      {
+        "matcher": "Agent",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash ${CLAUDE_PLUGIN_ROOT}/hooks/inject-role-context.sh",
+            "timeout": 5
+          }
+        ]
       }
     ],
     "SessionStart": [

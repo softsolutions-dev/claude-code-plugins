@@ -15,11 +15,11 @@ if echo "$PROMPT" | grep -qE "AGILE_TEAM_ACTIVATED|^/agile-team|agile-team:agile
     echo "--- Session started $(date -u +%Y-%m-%dT%H:%M:%SZ) ---" >> "$SESSION_LOG"
 
     # Inject project-specific constraints if they exist
-    if [ -f ".agile-team.md" ]; then
+    if [ -f ".agile-team/project.md" ]; then
       echo ""
       echo "## Project Context"
       echo ""
-      cat ".agile-team.md"
+      cat ".agile-team/project.md"
     fi
   fi
 fi
