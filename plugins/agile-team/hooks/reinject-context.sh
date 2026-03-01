@@ -12,6 +12,14 @@ fi
 
 cat "${CLAUDE_PLUGIN_ROOT}/context/coordinator-context.md"
 
+# Inject project-specific constraints if they exist
+if [ -f ".agile-team.md" ]; then
+  echo ""
+  echo "## Project Context"
+  echo ""
+  cat ".agile-team.md"
+fi
+
 # Inject active goal if goals exist
 GOALS_FILE="${CLAUDE_PLUGIN_ROOT}/.sessions/${SESSION_ID}.goals.json"
 if [ -f "$GOALS_FILE" ]; then
