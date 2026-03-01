@@ -23,6 +23,9 @@ fi
 AGENT_NAME=$(echo "$TOOL_INPUT" | jq -r '.name // empty')
 CURRENT_PROMPT=$(echo "$TOOL_INPUT" | jq -r '.prompt // empty')
 
+# Strip trailing -N suffix (e.g. designer-2 → designer, qa-3 → qa)
+BASE_NAME=$(echo "$AGENT_NAME" | sed 's/-[0-9]*$//')
+
 EXTRA=""
 
 # Shared project context
@@ -34,13 +37,13 @@ if [ -f ".agile-team/project.md" ]; then
 $(cat .agile-team/project.md)"
 fi
 
-# Role-specific context
-if [ -n "$AGENT_NAME" ] && [ -f ".agile-team/${AGENT_NAME}.md" ]; then
+# Role-specific context (use base name to handle re-spawned agents like designer-2)
+if [ -n "$BASE_NAME" ] && [ -f ".agile-team/${BASE_NAME}.md" ]; then
   EXTRA="${EXTRA}
 
 ## Your Role Context
 
-$(cat ".agile-team/${AGENT_NAME}.md")"
+$(cat ".agile-team/${BASE_NAME}.md")"
 fi
 
 # Nothing to inject
