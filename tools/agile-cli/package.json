@@ -1,0 +1,17 @@
+{
+  "name": "agile-team-cli",
+  "version": "1.0.0",
+  "description": "CLI for agile-team plugin — view session logs and manage goals",
+  "bin": {
+    "agile-team": "./dist/agile.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "prepublishOnly": "tsc"
+  },
+  "devDependencies": {
+    "typescript": "^5.0.0",
+    "@types/node": "^20.0.0"
+  },
+  "license": "MIT"
+}
