@@ -38,8 +38,32 @@ if [ -f "$GOALS_FILE" ]; then
 fi
 
 echo ""
-echo "## Coordinator Log (last 30 lines — use coordinator_log_read for full history)"
+echo "## Coordinator Log (last 15 entries — use coordinator_log_read for full history)"
 echo ""
-tail -30 "$SESSION_LOG"
+
+# Parse JSONL, filter by active goal, format tiered (5 full + 10 title-only)
+if [ -f "$SESSION_LOG" ]; then
+  GOAL_FILTER="null"
+  if [ -n "$GOAL_ID" ]; then
+    GOAL_FILTER="$GOAL_ID"
+  fi
+
+  jq -rs --argjson goal "$GOAL_FILTER" '
+    [ .[] | if $goal != null then select(.goal == $goal) else . end ] |
+    .[-15:] |
+    . as $tail |
+    ($tail | length) as $total |
+    range($total) |
+    . as $i |
+    ($total - $i) as $from_end |
+    $tail[$i] |
+    (.ts | sub("T"; " ") | sub("\\.[0-9]*Z$"; "Z")) as $ts |
+    if $from_end <= 5 and .description then
+      "[\($ts)] \(.title) — \(.description)"
+    else
+      "[\($ts)] \(.title)"
+    end
+  ' "$SESSION_LOG" 2>/dev/null
+fi
 
 exit 0

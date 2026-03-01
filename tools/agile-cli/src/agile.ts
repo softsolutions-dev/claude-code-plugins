@@ -16,6 +16,13 @@ interface GoalsFile {
   goals: Goal[];
 }
 
+interface LogEntry {
+  ts: string;
+  goal: number | null;
+  title: string;
+  description?: string;
+}
+
 interface SessionInfo {
   sessionId: string;
   logPath: string;
@@ -79,17 +86,36 @@ function readdirSafe(dir: string): string[] {
 function parseStartTime(logPath: string): Date | null {
   try {
     const fd = fs.openSync(logPath, "r");
-    const buf = Buffer.alloc(256);
-    fs.readSync(fd, buf, 0, 256, 0);
+    const buf = Buffer.alloc(512);
+    fs.readSync(fd, buf, 0, 512, 0);
     fs.closeSync(fd);
     const firstLine = buf.toString("utf-8").split("\n")[0];
-    // "--- Session started 2026-02-28T14:19:21Z ---"
-    const match = firstLine.match(/Session started (\S+)/);
-    if (match) return new Date(match[1]);
+    try {
+      const entry: LogEntry = JSON.parse(firstLine);
+      if (entry.ts) return new Date(entry.ts);
+    } catch {
+      // Legacy plain text format fallback
+      const match = firstLine.match(/Session started (\S+)/);
+      if (match) return new Date(match[1]);
+    }
   } catch {
     // fall through
   }
   return null;
+}
+
+function parseLogEntries(logPath: string): LogEntry[] {
+  if (!fs.existsSync(logPath)) return [];
+  const lines = fs.readFileSync(logPath, "utf-8").split("\n").filter((l) => l.trim());
+  const entries: LogEntry[] = [];
+  for (const line of lines) {
+    try {
+      entries.push(JSON.parse(line));
+    } catch {
+      // skip non-JSON lines
+    }
+  }
+  return entries;
 }
 
 function discoverSessions(sessionsDir: string): SessionInfo[] {
@@ -229,20 +255,26 @@ function cmdSessions(sessions: SessionInfo[]): void {
   }
 }
 
-function cmdLog(session: SessionInfo, lines?: number): void {
-  if (!fs.existsSync(session.logPath)) {
+function cmdLog(session: SessionInfo, lines?: number, goalFilter?: number): void {
+  const entries = parseLogEntries(session.logPath);
+
+  if (entries.length === 0) {
     console.log("(log is empty)");
     return;
   }
 
-  const content = fs.readFileSync(session.logPath, "utf-8");
-  const allLines = content.split("\n").filter((l) => l);
+  let filtered = entries;
+  if (goalFilter !== undefined) {
+    filtered = entries.filter((e) => e.goal === goalFilter);
+  }
 
-  if (lines && lines > 0) {
-    const tail = allLines.slice(-lines);
-    console.log(tail.join("\n"));
-  } else {
-    console.log(allLines.join("\n"));
+  const display = lines && lines > 0 ? filtered.slice(-lines) : filtered;
+
+  for (const e of display) {
+    const ts = formatDate(new Date(e.ts));
+    const goalTag = e.goal !== null ? ` [G${e.goal}]` : "";
+    const desc = e.description ? `\n    ${e.description}` : "";
+    console.log(`[${ts}]${goalTag} ${e.title}${desc}`);
   }
 }
 
@@ -334,15 +366,15 @@ function cmdGoalsComplete(session: SessionInfo, goalId: number): void {
 
 function printUsage(): void {
   console.log(`Usage:
-  agile sessions                              List all sessions
-  agile log <session> [--lines N]             View session log
-  agile goals <session>                       List goals
-  agile goals add <session> "description"     Add a goal
-  agile goals edit <session> <id> "new desc"  Edit goal description
-  agile goals status <session> <id> <status>  Change goal status
-  agile goals complete <session> <id>         Complete goal + promote next
+  agile-team sessions                              List all sessions
+  agile-team log <session> [--lines N] [--goal N]  View session log
+  agile-team goals <session>                       List goals
+  agile-team goals add <session> "description"     Add a goal
+  agile-team goals edit <session> <id> "new desc"  Edit goal description
+  agile-team goals status <session> <id> <status>  Change goal status
+  agile-team goals complete <session> <id>         Complete goal + promote next
 
-Session: use # from "agile sessions" or partial UUID.`);
+Session: use # from "agile-team sessions" or partial UUID.`);
 }
 
 // --- Main ---
@@ -369,7 +401,9 @@ function main(): void {
     const session = resolveSession(sessions, args[1]);
     const linesIdx = args.indexOf("--lines");
     const lines = linesIdx >= 0 ? parseInt(args[linesIdx + 1], 10) : undefined;
-    cmdLog(session, lines);
+    const goalIdx = args.indexOf("--goal");
+    const goalFilter = goalIdx >= 0 ? parseInt(args[goalIdx + 1], 10) : undefined;
+    cmdLog(session, lines, goalFilter);
     return;
   }
 

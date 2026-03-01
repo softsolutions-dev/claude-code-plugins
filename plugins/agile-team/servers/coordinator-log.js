@@ -51,18 +51,20 @@ const TOOLS = [
     inputSchema: {
       type: 'object',
       properties: {
-        entry: { type: 'string', description: 'The log entry to append' }
+        title: { type: 'string', description: 'Short summary of what happened' },
+        description: { type: 'string', description: 'Optional detail (findings, decisions, context)' }
       },
-      required: ['entry']
+      required: ['title']
     }
   },
   {
     name: 'coordinator_log_read',
-    description: 'Read the coordinator log. Returns the last N lines (default 50).',
+    description: 'Read the coordinator log. Returns last 15 entries for the current goal by default. Last 5 entries include full detail, entries 6-15 are title-only.',
     inputSchema: {
       type: 'object',
       properties: {
-        lines: { type: 'number', description: 'Number of lines to return from the end (default 300)' }
+        lines: { type: 'number', description: 'Number of entries to return (default 15)' },
+        all_goals: { type: 'boolean', description: 'Include entries from all goals, not just current (default false)' }
       }
     }
   },
@@ -100,14 +102,22 @@ function handleToolCall(id, name, args) {
   const logPath = path.join(SESSIONS_DIR, `${sessionId}.log`);
 
   if (name === 'coordinator_log_write') {
-    if (!args.entry) {
-      return respond(id, { content: [{ type: 'text', text: 'Error: entry is required' }], isError: true });
+    if (!args.title) {
+      return respond(id, { content: [{ type: 'text', text: 'Error: title is required' }], isError: true });
     }
     try {
       fs.mkdirSync(SESSIONS_DIR, { recursive: true });
-      const ts = new Date().toISOString().replace('T', ' ').replace(/\.\d+Z$/, 'Z');
-      fs.appendFileSync(logPath, `[${ts}] ${args.entry}\n`);
-      respond(id, { content: [{ type: 'text', text: `Logged: ${args.entry}` }] });
+      const ts = new Date().toISOString();
+
+      // Auto-attach active goal
+      const goalsData = readGoals(sessionId);
+      const activeGoal = goalsData.goals.find(g => g.status === 'active');
+
+      const entry = { ts, goal: activeGoal ? activeGoal.id : null, title: args.title };
+      if (args.description) entry.description = args.description;
+
+      fs.appendFileSync(logPath, JSON.stringify(entry) + '\n');
+      respond(id, { content: [{ type: 'text', text: `Logged: ${args.title}` }] });
     } catch (e) {
       respond(id, { content: [{ type: 'text', text: `Error: ${e.message}` }], isError: true });
     }
@@ -116,9 +126,40 @@ function handleToolCall(id, name, args) {
       if (!fs.existsSync(logPath)) {
         return respond(id, { content: [{ type: 'text', text: '(log is empty — no entries yet)' }] });
       }
-      const lines = fs.readFileSync(logPath, 'utf-8').split('\n').filter(l => l);
-      const tail = lines.slice(-(args.lines || 50)).join('\n');
-      respond(id, { content: [{ type: 'text', text: tail || '(log is empty — no entries yet)' }] });
+
+      const rawLines = fs.readFileSync(logPath, 'utf-8').split('\n').filter(l => l.trim());
+      let entries = [];
+      for (const line of rawLines) {
+        try { entries.push(JSON.parse(line)); } catch { /* skip non-JSON lines */ }
+      }
+
+      // Filter by current goal unless all_goals requested
+      if (!args.all_goals) {
+        const goalsData = readGoals(sessionId);
+        const activeGoal = goalsData.goals.find(g => g.status === 'active');
+        if (activeGoal) {
+          entries = entries.filter(e => e.goal === activeGoal.id);
+        }
+      }
+
+      const limit = args.lines || 15;
+      const tail = entries.slice(-limit);
+
+      if (tail.length === 0) {
+        return respond(id, { content: [{ type: 'text', text: '(no entries for current goal)' }] });
+      }
+
+      // Tiered output: last 5 full, rest title-only
+      const formatted = tail.map((e, i) => {
+        const ts = e.ts.replace('T', ' ').replace(/\.\d+Z$/, 'Z');
+        const fromEnd = tail.length - i;
+        if (fromEnd <= 5 && e.description) {
+          return `[${ts}] ${e.title} — ${e.description}`;
+        }
+        return `[${ts}] ${e.title}`;
+      });
+
+      respond(id, { content: [{ type: 'text', text: formatted.join('\n') }] });
     } catch (e) {
       respond(id, { content: [{ type: 'text', text: `Error: ${e.message}` }], isError: true });
     }

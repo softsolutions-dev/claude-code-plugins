@@ -12,7 +12,7 @@ if echo "$PROMPT" | grep -qE "AGILE_TEAM_ACTIVATED|^/agile-team|agile-team:agile
   if [ -n "$SESSION_ID" ]; then
     SESSION_LOG="${CLAUDE_PLUGIN_ROOT}/.sessions/${SESSION_ID}.log"
     mkdir -p "${CLAUDE_PLUGIN_ROOT}/.sessions"
-    echo "--- Session started $(date -u +%Y-%m-%dT%H:%M:%SZ) ---" >> "$SESSION_LOG"
+    echo "{\"ts\":\"$(date -u +%Y-%m-%dT%H:%M:%SZ)\",\"goal\":null,\"title\":\"Session started\"}" >> "$SESSION_LOG"
 
     # Inject project-specific constraints if they exist
     if [ -f ".agile-team/project.md" ]; then

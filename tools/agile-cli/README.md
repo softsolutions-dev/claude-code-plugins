@@ -12,7 +12,7 @@ npm install && npm run build && npm link
 
 ```
 agile-team sessions                              # List all sessions
-agile-team log <session> [--lines N]             # View session log
+agile-team log <session> [--lines N] [--goal N]  # View session log
 agile-team goals <session>                       # List goals
 agile-team goals add <session> "description"     # Add a goal
 agile-team goals edit <session> <id> "new desc"  # Edit goal description
