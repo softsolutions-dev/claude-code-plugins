@@ -29,7 +29,7 @@ if [ -f "$GOALS_FILE" ]; then
     DESC=$(jq -r '.goals[] | select(.status == "active") | .description' "$GOALS_FILE")
     echo ""
     echo "## Active Goal"
-    echo "Goal ${GOAL_ID} of ${TOTAL}: ${DESC}"
+    echo "Goal ${GOAL_ID}: ${DESC}"
   else
     echo ""
     echo "## Goals"

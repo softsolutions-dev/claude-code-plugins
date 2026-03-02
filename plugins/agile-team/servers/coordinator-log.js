@@ -81,7 +81,7 @@ const TOOLS = [
   },
   {
     name: 'goal_current',
-    description: 'Get the current active goal. Returns goal description and position (e.g., "Goal 2 of 4").',
+    description: 'Get the current active goal. Returns goal description and position (e.g., "Goal 2").',
     inputSchema: { type: 'object', properties: {} }
   },
   {
@@ -189,7 +189,7 @@ function handleToolCall(id, name, args) {
       if (!active) {
         return respond(id, { content: [{ type: 'text', text: 'All goals complete.' }] });
       }
-      respond(id, { content: [{ type: 'text', text: `Goal ${active.id} of ${total}: ${active.description}` }] });
+      respond(id, { content: [{ type: 'text', text: `Goal ${active.id}: ${active.description}` }] });
     } catch (e) {
       respond(id, { content: [{ type: 'text', text: `Error: ${e.message}` }], isError: true });
     }
@@ -207,7 +207,7 @@ function handleToolCall(id, name, args) {
       writeGoals(sessionId, data);
       const total = data.goals.length;
       const msg = next
-        ? `Goal ${active.id} complete. Now active — Goal ${next.id} of ${total}: ${next.description}`
+        ? `Goal ${active.id} complete. Now active — Goal ${next.id}: ${next.description}`
         : `All ${total} goals complete.`;
       respond(id, { content: [{ type: 'text', text: msg }] });
     } catch (e) {
