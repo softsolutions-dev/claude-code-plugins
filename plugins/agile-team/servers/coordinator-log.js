@@ -59,11 +59,11 @@ const TOOLS = [
   },
   {
     name: 'coordinator_log_read',
-    description: 'Read the coordinator log. Returns last 15 entries for the current goal by default. Last 5 entries include full detail, entries 6-15 are title-only.',
+    description: 'Read the coordinator log. Returns last 10 entries for the current goal by default. Last 5 entries include full detail, entries 6-10 are title-only.',
     inputSchema: {
       type: 'object',
       properties: {
-        lines: { type: 'number', description: 'Number of entries to return (default 15)' },
+        lines: { type: 'number', description: 'Number of entries to return (default 10)' },
         all_goals: { type: 'boolean', description: 'Include entries from all goals, not just current (default false)' }
       }
     }
@@ -142,7 +142,7 @@ function handleToolCall(id, name, args) {
         }
       }
 
-      const limit = args.lines || 15;
+      const limit = args.lines || 10;
       const tail = entries.slice(-limit);
 
       if (tail.length === 0) {

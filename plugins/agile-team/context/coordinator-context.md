@@ -46,7 +46,7 @@ coordinator_log_write({ title: "Designer APPROVED screenshots", description: "8/
 
 Log after every significant event: decisions, task completions, gate results, blockers, user feedback. Title should be scannable — a future you reading just the titles should know what happened.
 
-Use `coordinator_log_read` to review history (returns last 15 entries for current goal). Use `coordinator_log_read({ all_goals: true })` to see entries across all goals.
+Use `coordinator_log_read` to review history (returns last 10 entries for current goal). Use `coordinator_log_read({ all_goals: true })` to see entries across all goals.
 
 ## Goals
 
