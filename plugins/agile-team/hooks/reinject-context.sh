@@ -12,8 +12,8 @@ fi
 
 cat "${CLAUDE_PLUGIN_ROOT}/context/coordinator-context.md"
 
-# Inject project-specific constraints if they exist
-if [ -f ".agile-team/project.md" ]; then
+# Inject project-specific constraints if they exist and are non-empty
+if [ -f ".agile-team/project.md" ] && [ -s ".agile-team/project.md" ]; then
   echo ""
   echo "## Project Context"
   echo ""
