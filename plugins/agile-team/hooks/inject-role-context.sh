@@ -1,6 +1,7 @@
 #!/bin/bash
 # PreToolUse hook: auto-injects project + role-specific context into Agent spawn prompts.
-# Checks .agile-team/project.md (shared) and .agile-team/{name}.md (role-specific).
+# Checks .agile-team/project.md (shared) and .agile-team/{match}.md (role-specific).
+# Uses longest-prefix matching: agent name "qa-auth-specialist" matches "qa.md".
 # Only active in agile-team sessions. Skips agent resumes.
 
 INPUT=$(cat)
@@ -23,13 +24,10 @@ fi
 AGENT_NAME=$(echo "$TOOL_INPUT" | jq -r '.name // empty')
 CURRENT_PROMPT=$(echo "$TOOL_INPUT" | jq -r '.prompt // empty')
 
-# Strip trailing -N suffix (e.g. designer-2 → designer, qa-3 → qa)
-BASE_NAME=$(echo "$AGENT_NAME" | sed 's/-[0-9]*$//')
-
 EXTRA=""
 
-# Shared project context
-if [ -f ".agile-team/project.md" ]; then
+# Shared project context (skip if empty)
+if [ -f ".agile-team/project.md" ] && [ -s ".agile-team/project.md" ]; then
   EXTRA="${EXTRA}
 
 ## Project Context
@@ -37,13 +35,30 @@ if [ -f ".agile-team/project.md" ]; then
 $(cat .agile-team/project.md)"
 fi
 
-# Role-specific context (use base name to handle re-spawned agents like designer-2)
-if [ -n "$BASE_NAME" ] && [ -f ".agile-team/${BASE_NAME}.md" ]; then
+# Role-specific context: find the .agile-team/*.md file whose stem is the
+# longest prefix of the agent name. E.g. "product-analyst-2" matches
+# "product-analyst.md", "qa-auth-specialist" matches "qa.md".
+BEST_MATCH=""
+BEST_LEN=0
+for role_file in .agile-team/*.md; do
+  [ -f "$role_file" ] || continue
+  stem=$(basename "$role_file" .md)
+  [ "$stem" = "project" ] && continue
+  if echo "$AGENT_NAME" | grep -q "^${stem}"; then
+    len=${#stem}
+    if [ "$len" -gt "$BEST_LEN" ]; then
+      BEST_MATCH="$role_file"
+      BEST_LEN="$len"
+    fi
+  fi
+done
+
+if [ -n "$BEST_MATCH" ]; then
   EXTRA="${EXTRA}
 
 ## Your Role Context
 
-$(cat ".agile-team/${BASE_NAME}.md")"
+$(cat "$BEST_MATCH")"
 fi
 
 # Nothing to inject
