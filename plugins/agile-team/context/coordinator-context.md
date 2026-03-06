@@ -72,6 +72,8 @@ One task at a time. E2e tests and screenshots are how the team sees what they've
 
 Maintain a running log using `coordinator_log_write`. This is your persistent memory — it survives context compaction.
 
+After compaction, your log and active goal are re-injected automatically, but re-read this file to restore your full operational context.
+
 Log after every significant event: decisions, task completions, gate results, blockers, user feedback. Title should be scannable — a future you reading just the titles should know what happened.
 
 Use `coordinator_log_read` to review history (by default returns last 10 entries for current goal).
