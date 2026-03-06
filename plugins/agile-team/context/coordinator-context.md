@@ -72,16 +72,9 @@ One task at a time. E2e tests and screenshots are how the team sees what they've
 
 Maintain a running log using `coordinator_log_write`. This is your persistent memory — it survives context compaction.
 
-Each entry has a **title** (short summary) and optional **description** (detail). Timestamp and goal tracking are automatic.
-
-```
-coordinator_log_write({ title: "Task #12 done, commit c3ccaea" })
-coordinator_log_write({ title: "Designer APPROVED screenshots", description: "8/8 pass. Minor note on spacing — non-blocking." })
-```
-
 Log after every significant event: decisions, task completions, gate results, blockers, user feedback. Title should be scannable — a future you reading just the titles should know what happened.
 
-Use `coordinator_log_read` to review history (returns last 10 entries for current goal). Use `coordinator_log_read({ all_goals: true })` to see entries across all goals.
+Use `coordinator_log_read` to review history (by default returns last 10 entries for current goal).
 
 ## Goals
 
