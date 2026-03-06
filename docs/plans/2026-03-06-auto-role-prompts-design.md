@@ -93,9 +93,9 @@ done
 
 `project.md` is only injected if non-empty (`[ -s ".agile-team/project.md" ]`). This lets the empty file serve as a discoverable placeholder without polluting agent prompts.
 
-### Coordinator Context: Role Interfaces
+### Coordinator Context: Enriched Role Interfaces
 
-Replace the full role prompts in `coordinator-context.md` with short interfaces:
+Replace the full role prompts in `coordinator-context.md` with enriched interfaces (~100 tokens each). These include the cognitive frame and mental model sentence — enough for the coordinator to make nuanced delegation decisions and enforce persona consistency, without the full prompt (which causes context pollution and role bleed per Cemri et al. FM-1.2).
 
 ```markdown
 ### Team Roles
