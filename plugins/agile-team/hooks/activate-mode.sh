@@ -19,6 +19,7 @@ if echo "$PROMPT" | grep -qE "AGILE_TEAM_ACTIVATED|^/agile-team|agile-team:agile
     if [ -d "$ROLES_DIR" ]; then
       mkdir -p ".agile-team"
       for role_file in "$ROLES_DIR"/*.md; do
+        [ -f "$role_file" ] || continue
         base=$(basename "$role_file")
         [ ! -f ".agile-team/$base" ] && cp "$role_file" ".agile-team/$base"
       done
