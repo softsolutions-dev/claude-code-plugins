@@ -101,6 +101,12 @@ function handleToolCall(id, name, args) {
 
   const logPath = path.join(SESSIONS_DIR, `${sessionId}.log`);
 
+  // Only the coordinator session has a .log file (created by activate-mode.sh).
+  // Teammate sessions don't — block them from using coordinator-only tools.
+  if (!fs.existsSync(logPath)) {
+    return respond(id, { content: [{ type: 'text', text: 'Error: coordinator-only tool. Use SendMessage to report findings to the coordinator.' }], isError: true });
+  }
+
   if (name === 'coordinator_log_write') {
     if (!args.title) {
       return respond(id, { content: [{ type: 'text', text: 'Error: title is required' }], isError: true });
