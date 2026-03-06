@@ -67,6 +67,8 @@ if [ -n "$BEST_MATCH" ]; then
 
 $(cat "$BEST_MATCH")
 
+Every input passes through your perspective first — it shapes what you notice, what you question, and what you say.
+
 If your context was compacted, re-read your role from .agile-team/${ROLE_STEM}.md"
 fi
 
