@@ -29,15 +29,6 @@ CURRENT_PROMPT=$(echo "$TOOL_INPUT" | jq -r '.prompt // empty')
 
 EXTRA=""
 
-# Shared project context (skip if empty)
-if [ -f ".agile-team/project.md" ] && [ -s ".agile-team/project.md" ]; then
-  EXTRA="${EXTRA}
-
-## Project Context
-
-$(cat .agile-team/project.md)"
-fi
-
 # Role-specific context: find the .agile-team/*.md file whose stem is the
 # longest prefix of the agent name, delimited by hyphen or exact match.
 # E.g. "product-analyst-2" matches "product-analyst.md", "qa-auth" matches "qa.md".
@@ -70,6 +61,15 @@ $(cat "$BEST_MATCH")
 Every input passes through your perspective first — it shapes what you notice, what you question, and what you say.
 
 If your context was compacted, re-read your role from .agile-team/${ROLE_STEM}.md"
+fi
+
+# Shared project context (skip if empty) — injected after role prompt
+if [ -f ".agile-team/project.md" ] && [ -s ".agile-team/project.md" ]; then
+  EXTRA="${EXTRA}
+
+## Project Context
+
+$(cat .agile-team/project.md)"
 fi
 
 # Nothing to inject
