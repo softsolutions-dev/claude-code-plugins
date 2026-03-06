@@ -22,6 +22,7 @@ if [ -n "$RESUME" ]; then
 fi
 
 AGENT_NAME=$(echo "$TOOL_INPUT" | jq -r '.name // empty')
+[ -n "$AGENT_NAME" ] || exit 0
 CURRENT_PROMPT=$(echo "$TOOL_INPUT" | jq -r '.prompt // empty')
 
 EXTRA=""
@@ -36,21 +37,24 @@ $(cat .agile-team/project.md)"
 fi
 
 # Role-specific context: find the .agile-team/*.md file whose stem is the
-# longest prefix of the agent name. E.g. "product-analyst-2" matches
-# "product-analyst.md", "qa-auth-specialist" matches "qa.md".
+# longest prefix of the agent name, delimited by hyphen or exact match.
+# E.g. "product-analyst-2" matches "product-analyst.md", "qa-auth" matches "qa.md".
+# Uses case/glob (no regex) to avoid injection via filenames.
 BEST_MATCH=""
 BEST_LEN=0
 for role_file in .agile-team/*.md; do
   [ -f "$role_file" ] || continue
   stem=$(basename "$role_file" .md)
   [ "$stem" = "project" ] && continue
-  if echo "$AGENT_NAME" | grep -q "^${stem}"; then
-    len=${#stem}
-    if [ "$len" -gt "$BEST_LEN" ]; then
-      BEST_MATCH="$role_file"
-      BEST_LEN="$len"
-    fi
-  fi
+  case "$AGENT_NAME" in
+    "$stem"|"${stem}-"*)
+      len=${#stem}
+      if [ "$len" -gt "$BEST_LEN" ]; then
+        BEST_MATCH="$role_file"
+        BEST_LEN="$len"
+      fi
+      ;;
+  esac
 done
 
 if [ -n "$BEST_MATCH" ]; then
