@@ -3,6 +3,8 @@
 # The log file doubles as the session marker — if it exists, this session is in agile mode.
 # Runs on every UserPromptSubmit — exits fast when not relevant.
 
+CLAUDE_PLUGIN_ROOT="${CLAUDE_PLUGIN_ROOT:-$(cd "$(dirname "$0")/.." && pwd)}"
+
 INPUT=$(cat)
 PROMPT=$(echo "$INPUT" | jq -r '.prompt // empty')
 

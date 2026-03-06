@@ -1,8 +1,10 @@
 #!/bin/bash
-# PreToolUse hook: auto-injects project + role-specific context into Agent spawn prompts.
+# PreToolUse hook: auto-injects project + role-specific context into Task spawn prompts.
 # Checks .agile-team/project.md (shared) and .agile-team/{match}.md (role-specific).
 # Uses longest-prefix matching: agent name "qa-auth-specialist" matches "qa.md".
 # Only active in agile-team sessions. Skips agent resumes.
+
+CLAUDE_PLUGIN_ROOT="${CLAUDE_PLUGIN_ROOT:-$(cd "$(dirname "$0")/.." && pwd)}"
 
 INPUT=$(cat)
 SESSION_ID=$(echo "$INPUT" | jq -r '.session_id // empty')
