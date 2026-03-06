@@ -14,8 +14,19 @@ if echo "$PROMPT" | grep -qE "AGILE_TEAM_ACTIVATED|^/agile-team|agile-team:agile
     mkdir -p "${CLAUDE_PLUGIN_ROOT}/.sessions"
     echo "{\"ts\":\"$(date -u +%Y-%m-%dT%H:%M:%SZ)\",\"goal\":null,\"title\":\"Session started\"}" >> "$SESSION_LOG"
 
-    # Inject project-specific constraints if they exist
-    if [ -f ".agile-team/project.md" ]; then
+    # Populate .agile-team/ with default role prompts (skip existing files)
+    ROLES_DIR="${CLAUDE_PLUGIN_ROOT}/context/roles"
+    if [ -d "$ROLES_DIR" ]; then
+      mkdir -p ".agile-team"
+      for role_file in "$ROLES_DIR"/*.md; do
+        base=$(basename "$role_file")
+        [ ! -f ".agile-team/$base" ] && cp "$role_file" ".agile-team/$base"
+      done
+      [ ! -f ".agile-team/project.md" ] && touch ".agile-team/project.md"
+    fi
+
+    # Inject project-specific constraints if they exist and are non-empty
+    if [ -f ".agile-team/project.md" ] && [ -s ".agile-team/project.md" ]; then
       echo ""
       echo "## Project Context"
       echo ""
