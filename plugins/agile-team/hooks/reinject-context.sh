@@ -1,14 +1,41 @@
 #!/bin/bash
-# Re-injects agile coordinator context + log after compaction.
-# Only outputs when this session has agile-team mode active (log file exists).
+# Re-injects agile context after compaction.
+# Coordinator sessions: full coordinator context + log.
+# Teammate sessions: role-specific context (detected via transcript marker).
 
 CLAUDE_PLUGIN_ROOT="${CLAUDE_PLUGIN_ROOT:-$(cd "$(dirname "$0")/.." && pwd)}"
 
 INPUT=$(cat)
 SESSION_ID=$(echo "$INPUT" | jq -r '.session_id // empty')
+[ -z "$SESSION_ID" ] && exit 0
+
 SESSION_LOG="${CLAUDE_PLUGIN_ROOT}/.sessions/${SESSION_ID}.log"
 
-if [ -z "$SESSION_ID" ] || [ ! -f "$SESSION_LOG" ]; then
+# Not coordinator — check if this is a teammate session
+if [ ! -f "$SESSION_LOG" ]; then
+  TRANSCRIPT=$(echo "$INPUT" | jq -r '.transcript_path // empty')
+  if [ -n "$TRANSCRIPT" ] && [ -f "$TRANSCRIPT" ]; then
+    ROLE_NAME=$(head -5 "$TRANSCRIPT" | grep -o 'agile-role:[a-z-]*' | head -1 | cut -d: -f2)
+  fi
+  if [ -z "$ROLE_NAME" ]; then
+    exit 0
+  fi
+
+  # Teammate compaction — re-inject role context
+  if [ -f ".agile-team/${ROLE_NAME}.md" ]; then
+    echo "## Your Role Context"
+    echo "<!-- agile-role:${ROLE_NAME} -->"
+    echo ""
+    cat ".agile-team/${ROLE_NAME}.md"
+    echo ""
+    echo "If your context was compacted, re-read your role from .agile-team/${ROLE_NAME}.md"
+  fi
+  if [ -f ".agile-team/project.md" ] && [ -s ".agile-team/project.md" ]; then
+    echo ""
+    echo "## Project Context"
+    echo ""
+    cat ".agile-team/project.md"
+  fi
   exit 0
 fi
 

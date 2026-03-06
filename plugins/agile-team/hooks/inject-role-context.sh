@@ -60,11 +60,14 @@ for role_file in .agile-team/*.md; do
 done
 
 if [ -n "$BEST_MATCH" ]; then
+  ROLE_STEM=$(basename "$BEST_MATCH" .md)
   EXTRA="${EXTRA}
 
-## Your Role Context
+<!-- agile-role:${ROLE_STEM} -->
 
-$(cat "$BEST_MATCH")"
+$(cat "$BEST_MATCH")
+
+If your context was compacted, re-read your role from .agile-team/${ROLE_STEM}.md"
 fi
 
 # Nothing to inject
