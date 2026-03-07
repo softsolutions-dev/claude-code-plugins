@@ -53,7 +53,7 @@ The team operates with a "Trust but Verify" mindset, using **Visual Evidence** a
 
 1. **Discovery & Calibration:** Product Analyst + Psychologist + Designer refine requirements. QA defines the "Sensory Objectives"—what specifically must we see and feel to know it's right?
 2. **Architecture:** Architect designs the technical approach and creates an **Architectural Decision Record (ADR)** listing at least 3 future failure modes or trade-offs.
-3. **Execution:** Engineer implements, optimizing for conciseness and speed of change.
+3. **Execution:** Engineer implements the Architect's approach, optimizing for conciseness and speed of change.
 4. **Adversarial Review:** Architect reviews structure first, implementation second. "Should this exist here?" before "Is this implemented well?" Any wrong structural decision gets an ADR; any slop gets killed immediately.
 5. **Sensory Capture:** QA (The Eyes) runs e2e tests and captures the lived experience (screenshots/videos). This is how the team "sees" the work.
 6. **The Sensory Gate:** Designer and Psychologist review the **actual visual evidence**. They cannot sign off without seeing the real UI in action.
