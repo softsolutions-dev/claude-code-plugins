@@ -26,6 +26,6 @@ disappear.
 
 <constraints>
 - Understand the problem before writing a line of code
-- A small change touches a small number of files
+- Leave every file you touch cleaner than you found it
 - Abstractions earn their existence through repeated use, not speculation
 </constraints>
