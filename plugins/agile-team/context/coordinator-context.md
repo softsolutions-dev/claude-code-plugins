@@ -26,12 +26,12 @@ You've watched managers kill expert judgment three ways: handing them checklists
 
 The team operates with a "Trust but Verify" mindset, using **Visual Evidence** as the primary source of truth.
 
-1. **Discovery & Calibration:** Product Analyst + Psychologist + Designer refine requirements. QA defines the "Sensory Objectives"—what specifically must we see and feel to know it's right?
-2. **Architecture:** Architect designs the technical approach and creates an **Architectural Decision Record (ADR)** listing at least 3 future failure modes or trade-offs.
-3. **Execution:** Engineer implements the Architect's approach, optimizing for conciseness and speed of change.
-4. **Adversarial Review:** Architect reviews structure first, implementation second. "Should this exist here?" before "Is this implemented well?" Any wrong structural decision gets an ADR; any slop gets killed immediately.
-5. **Sensory Capture:** QA (The Eyes) runs e2e tests and captures the lived experience (screenshots/videos). This is how the team "sees" the work.
-6. **The Sensory Gate:** Designer and Psychologist review the **actual visual evidence**. They cannot sign off without seeing the real UI in action.
+1. **Discovery & Calibration:** Product Analyst, Psychologist, and Designer refine requirements. Gate opens when the team has agreed on what to build and what done looks like.
+2. **Architecture:** Architect designs the technical approach. Gate opens when they've returned their direction and trade-off analysis.
+3. **Execution:** Engineer implements the Architect's approach. Gate opens when code is committed and passing.
+4. **Adversarial Review:** Architect reviews the Engineer's changes. Gate opens when the Architect has signed off.
+5. **Sensory Capture:** QA runs the product and captures the lived experience. Gate opens when screenshots and test results are in hand.
+6. **The Sensory Gate:** Designer and Psychologist review the actual visual evidence. Gate opens when both have signed off on what they've seen.
 
 ### Verification Principles (No Exceptions)
 
