@@ -1,16 +1,18 @@
 #!/bin/bash
-# PreToolUse hook: auto-injects project + role-specific context into Task spawn prompts.
-# Checks .agile-team/project.md (shared) and .agile-team/{match}.md (role-specific).
+# PreToolUse hook: injects role + project context into Task/Agent spawn prompts.
 # Uses longest-prefix matching: agent name "qa-auth-specialist" matches "qa.md".
-# Only active in agile-team sessions. Skips agent resumes.
+# Only active in agile sessions. Skips agent resumes.
 
 CLAUDE_PLUGIN_ROOT="${CLAUDE_PLUGIN_ROOT:-$(cd "$(dirname "$0")/.." && pwd)}"
+
+DEBUG_LOG="/tmp/agile-session.log"
+log() { echo "[$(date -u +%Y-%m-%dT%H:%M:%SZ)] [inject-role-context] $*" >> "$DEBUG_LOG"; }
 
 INPUT=$(cat)
 SESSION_ID=$(echo "$INPUT" | jq -r '.session_id // empty')
 SESSION_LOG="${CLAUDE_PLUGIN_ROOT}/.sessions/${SESSION_ID}.log"
 
-# Only active in agile-team sessions
+# Only active in agile sessions
 if [ -z "$SESSION_ID" ] || [ ! -f "$SESSION_LOG" ]; then
   exit 0
 fi
@@ -20,19 +22,21 @@ TOOL_INPUT=$(echo "$INPUT" | jq '.tool_input')
 # Skip resumes — context was already injected at initial spawn
 RESUME=$(echo "$TOOL_INPUT" | jq -r '.resume // empty')
 if [ -n "$RESUME" ]; then
+  log "resume → skip"
   exit 0
 fi
 
 AGENT_NAME=$(echo "$TOOL_INPUT" | jq -r '.name // empty')
-[ -n "$AGENT_NAME" ] || exit 0
-CURRENT_PROMPT=$(echo "$TOOL_INPUT" | jq -r '.prompt // empty')
+if [ -z "$AGENT_NAME" ]; then
+  exit 0
+fi
 
+log "agent=$AGENT_NAME"
+
+CURRENT_PROMPT=$(echo "$TOOL_INPUT" | jq -r '.prompt // empty')
 EXTRA=""
 
-# Role-specific context: find the .agile-team/*.md file whose stem is the
-# longest prefix of the agent name, delimited by hyphen or exact match.
-# E.g. "product-analyst-2" matches "product-analyst.md", "qa-auth" matches "qa.md".
-# Uses case/glob (no regex) to avoid injection via filenames.
+# Role matching: find .agile-team/*.md whose stem is the longest prefix of agent name
 BEST_MATCH=""
 BEST_LEN=0
 for role_file in .agile-team/*.md; do
@@ -52,6 +56,7 @@ done
 
 if [ -n "$BEST_MATCH" ]; then
   ROLE_STEM=$(basename "$BEST_MATCH" .md)
+  log "matched role=$ROLE_STEM from $BEST_MATCH"
   EXTRA="${EXTRA}
 
 <!-- agile-role:${ROLE_STEM} -->
@@ -61,19 +66,23 @@ $(cat "$BEST_MATCH")
 Every input passes through your perspective first — it shapes what you notice, what you question, and what you say.
 
 If your context was compacted, re-read your role from .agile-team/${ROLE_STEM}.md"
+else
+  log "no role match for $AGENT_NAME"
 fi
 
-# Shared project context (skip if empty) — injected after role prompt
+# Project context (skip if empty)
 if [ -f ".agile-team/project.md" ] && [ -s ".agile-team/project.md" ]; then
   EXTRA="${EXTRA}
 
 ## Project Context
 
 $(cat .agile-team/project.md)"
+  log "project context injected"
 fi
 
 # Nothing to inject
 if [ -z "$EXTRA" ]; then
+  log "nothing to inject"
   exit 0
 fi
 
@@ -87,4 +96,5 @@ jq -n --argjson updated "$UPDATED" '{
     updatedInput: $updated
   }
 }'
+log "role+project context injected for $AGENT_NAME"
 exit 0
