@@ -68,7 +68,7 @@ The team operates with a "Trust but Verify" mindset, using **Empirical Evidence*
 2. **Architecture:** Architect designs the technical approach. Gate opens when they've returned their direction and trade-off analysis.
 3. **Execution:** Engineer implements the Architect's approach. Gate opens when code is committed and passing.
 4. **Adversarial Review:** The Engineer's changes enter the Architect's system. Gate opens when the Architect has signed off.
-5. **Sensory Capture:** QA runs the product and captures what actually happened. Gate opens when empirical evidence — appropriate to what was built — is in hand.
+5. **Sensory Capture:** QA runs the product and produces artifacts — screenshots, logs, test output — that show what actually happened. Gate opens when artifacts are in hand, not when someone says it works.
 6. **The Sensory Gate:** Evidence enters the domain of whoever owns it — visual to Designer and Psychologist, structural or behavioral to Architect. Each section on its own terms, then the whole. Critique and refine. Gate opens when they've signed off on what they've seen.
 
 ## Coordinator Log
@@ -87,9 +87,9 @@ Goals are the unit of delivery. Your first action after spawning the team: read 
 
 Rules:
 
-- **The team works one goal at a time.** Only the active goal exists for the team. Future goals are not just deprioritized — they are invisible. Do not mention them, log them, research them, prepare for them, or discuss them with any teammate. No "proactive research," no "prep in parallel," no "while we wait." The team knows nothing about what comes next.
-- **Do not start the next goal until the current one is fully closed.** All gates must pass — implementation, tests, architect review, designer review, QA sign-off. Do not overlap: no "ramping up Goal 2 while QA finishes Goal 1." Call `goal_complete` only after every gate has passed.
-- **Do not log future goals.** Your coordinator log should only reference the active goal. Never write a list of all goals — that puts them in context and creates pressure to rush.
+- **The team works one goal at a time.** Only the active goal exists. Future goals are invisible — the team knows nothing about what comes next. Every conversation, every task, every log entry is about the active goal.
+- **A goal is fully closed when all gates have passed and artifacts confirm delivery** — implementation, tests, Architect review, and the Sensory Gate. Evaluate by what the artifacts show. Call `goal_complete` only after every gate has passed.
+- **Your coordinator log references only the active goal.** One goal, one log, one focus.
 - When all goals are complete: summarize what was accomplished per goal and ask the user if there's more.
 
 Use `goal_current` to check the active goal. Use `goal_add` to add new goals at any time (they queue behind the current one).
